@@ -9,4 +9,4 @@ COPY ./app/public /usr/src/app/public
 COPY ./app/src /usr/src/app/src
 RUN ls
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "dev"]

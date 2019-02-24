@@ -12,6 +12,7 @@
     "typescript": "^3.3.3333"
   },
   "scripts": {
+    "dev": "PORT=80 react-scripts start",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

@@ -36,4 +36,6 @@ services:
       - "5380:5380"
     hostname: dns.mageddo
     restart: unless-stopped
+    logging:
+      driver: none
 
