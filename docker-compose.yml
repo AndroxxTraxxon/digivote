@@ -1,0 +1,39 @@
+version: '3'
+services:
+  cla:
+    build: ./digivote-cla
+    ports:
+      - "8081:443"
+    volumes:
+      - ./digivote-cla/src:/usr/src/server
+    hostname: cla.cyber.stmarytx.edu
+
+  ctf:
+    build: ./digivote-ctf
+    ports: 
+      - "8082:443"
+    volumes:
+      - ./digivote-ctf/src:/usr/src/server
+    hostname: ctf.cyber.stmarytx.edu
+    
+  ui:
+    build: ./digivote-ui
+    ports: 
+      - "8080:3000"
+    volumes:
+      - ./digivote-ui/app/src:/usr/src/app/src
+      - ./digivote-ui/app/public:/usr/src/app/public
+    hostname: digivote.cyber.stmarytx.edu
+
+  dps:
+    image: defreitas/dns-proxy-server
+    environment:
+      - MG_REGISTER_CONTAINER_NAMES=1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/resolv.conf:/etc/resolv.conf
+    ports: 
+      - "5380:5380"
+    hostname: dns.mageddo
+    restart: unless-stopped
+

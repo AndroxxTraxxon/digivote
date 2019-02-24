@@ -1,0 +1,5 @@
+-----BEGIN CERTIFICATE-----
+THIS IS AN EXAMPLE FILE.
+USE OPENSSL TO GENERATE A NEW KEY PAIR.
+openssl req -x509 -nodes -newkey rsa:4096 -keyout cla.key -out cla.crt -days 365 -sha256 -subj "/C=US/ST=Texas/L=San Antonio/O=St. Mary's University/OU=Computer Science Cyberlab/CN=cla.cyber.stmarytx.edu"
+-----END CERTIFICATE-----
