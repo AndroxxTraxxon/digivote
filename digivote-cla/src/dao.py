@@ -1,24 +1,26 @@
 import sqlite3
 import uuid
-
+import voter
 
 class CLADAO:
 
-    sql_create_table = """
-    CREATE TABLE IF NOT EXISTS voters (
-        id 
-    );
-    """
+    def __init__(self):
+        self.voters = dict()
 
-    def __init__(self, db_name=None):
-        self.db = sqlite3.connect(db_name)
-        self.c = self.db.cursor()
+    def get_voter(self, voter_id: str):
+        return self.voters[str(voter_id)]
 
-    def startup_tables():
-        pass
+    def add_voter(self, voter:voter.Voter):
+        try:
+            self.voters[str(voter.id)]
+        except KeyError as e:
+            self.voters[str(voter.id)] = voter
+            return True
+        raise ValueError("Voter with id {} already exists".format(str(voter.id)))
 
-    def create_connection(self, db_name):
-        self.db = sqlite3.connect(db_name or "cla_data.db")
+    def get_all_voters(self):
+        return self.voters.values()
     
-    def create_table(self, table_name, columns):
+    def get_voters_who_voted(self):
+        return [voter for voter in self.voters.values() if voter.has_voted]
 

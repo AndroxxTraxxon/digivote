@@ -16,11 +16,11 @@ class Registration extends React.Component{
 
   
 
-  handleChange(){
-
+  handleChange(event){
+    console.log(event.target.value, event.target.name)
   }
 
-  handleSubmit(){
+  handleSubmit(event){
 
   }
 
@@ -30,8 +30,15 @@ class Registration extends React.Component{
         Registration
 
         <div className="registration-form-wrapper">
-          <form>
-
+          <form onSubmit={this.handleSubmit}>
+          firstName='',
+          lastName='',
+          ssn='000-00-0000',
+          streetAddress='',
+          city='',
+          state='',
+          zip='00000',
+          birthdate=datetime.datetime.now(),
           </form>
         </div>
       </div>
