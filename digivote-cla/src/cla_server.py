@@ -1,15 +1,15 @@
 from flask import Flask, request
+from security import VoterSecurity
 import json
 import time
 import ssl
 import sqlite3
-import dao
 import voter
 
 app = Flask(__name__)
 global counter
 counter = 0
-dao = dao.CLADAO()
+voters = VoterSecurity()
 
 def get_hit_count():
     global counter
@@ -17,15 +17,15 @@ def get_hit_count():
     return counter
 
 @app.route('/voters', methods=['GET', 'POST'])
-def voters():
+def handle_voters():
     if request.method == 'GET':
         voter_list = [{
                 "firstName": voter.firstName,
                 "lastName": voter.lastName,
-                "birthDate": voter.birthDate} for voter in dao.get_all_voters()]
+                "birthDate": voter.birthDate} for voter in voters.get_all_voters()]
         return json.dumps(voter_list)
     elif request.method == 'POST':
-        return json.dumps(dao.add_voter(
+        return json.dumps(voters.add_voter(
             voter.Voter.make_voter(
                 request.get_json()
             )
@@ -33,12 +33,20 @@ def voters():
 
 @app.route('/voters/<uuid:voter_id>')
 def get_voter(voter_id):
-    return json.dumps(dao.get_voter(voter_id).__dict__)
+    return json.dumps(voters.get_voter(voter_id).__dict__)
 
 @app.route('/')
 def hello():
     count = get_hit_count()
     return 'CLA Server: Hello World! I have been seen {} times.\n'.format(count)
+
+@app.route('/live')
+def livenessCheck():
+    return json.dumps({"alive": "true"})
+
+@app.route('/ready')
+def readinessCheck():
+    return json.dumps({"ready": "true"})
 
 if __name__ == "__main__":
     context=ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)

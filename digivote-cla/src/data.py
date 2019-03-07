@@ -2,7 +2,7 @@ import sqlite3
 import uuid
 import voter
 
-class CLADAO:
+class VoterDAO:
 
     def __init__(self):
         self.voters = dict()
