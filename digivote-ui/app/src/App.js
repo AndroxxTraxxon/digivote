@@ -10,8 +10,8 @@ import Election from './components/Election';
 
 class App extends Component {
 
-  constructor(){
-    super({});
+  constructor(props){
+    super(props);
     if(window.localStorage.digivote){
       this.state = JSON.parse(window.localStorage.digivote);
     }else{

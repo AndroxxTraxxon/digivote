@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.18.0",
     "moment": "^2.24.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.3",
@@ -10,10 +11,12 @@
     "react-dom": "^16.8.3",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.5",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.3.3333",
+    "universal-logger": "^1.0.1",
+    "universal-logger-browser": "^1.0.2"
   },
   "scripts": {
-    "dev": "PORT=80 react-scripts start",
+    "dev": "PORT=80 NODE_ENV=development react-scripts start",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

@@ -7,19 +7,17 @@ class VoterDAO:
     def __init__(self):
         self.voters = dict()
 
-    def get_voter(self, voter_id: str):
-        return self.voters[str(voter_id)]
+    def get_voter(self, voter_id: uuid.UUID):
+        if voter_id in self.voters:
+            return self.voters[voter_id]
+        return None
 
-    def add_voter(self, voter:voter.Voter):
-        try:
-            self.voters[str(voter.id)]
-        except KeyError as e:
-            self.voters[str(voter.id)] = voter
-            return True
-        raise ValueError("Voter with id {} already exists".format(str(voter.id)))
+    def set_voter(self, voter:voter.Voter):
+        self.voters[voter.id] = voter
+        return voter
 
     def get_all_voters(self):
-        return self.voters.values()
+        return list(self.voters.values())
     
     def get_voters_who_voted(self):
         return [voter for voter in self.voters.values() if voter.has_voted]
