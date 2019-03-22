@@ -1,5 +1,0 @@
------BEGIN CERTIFICATE-----
-THIS IS AN EXAMPLE FILE.
-USE OPENSSL TO GENERATE A NEW KEY PAIR.
-openssl req -x509 -newkey rsa:4096 -keyout ctf.key -out ctf.crt -days 365
------END CERTIFICATE-----

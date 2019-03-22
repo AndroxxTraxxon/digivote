@@ -4,6 +4,10 @@ from flask_cors import CORS
 import time
 import ssl
 import sqlite3
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+auth_cert = os.path.join(dir_path, "auth.crt")
+print("CTF running with cert {}".format(auth_cert))
 from flask import Flask, request, abort, jsonify
 
 app = flask.Flask(__name__)
@@ -63,11 +67,13 @@ def getBallot():
     ])
 
 def validate_voter_id(voter_id):
+    print(auth_cert) 
     requests.post(
         "https://cla.cyber.stmarytx.edu/validate", 
-        verify= False, # "cla.crt",
-        data={"id": voter_id}
-        )
+        verify=auth_cert,
+        data={
+            "id": voter_id
+        })
 
 @app.route('/vote', methods=['POST'])
 def cast_vote():
