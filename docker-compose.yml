@@ -4,9 +4,16 @@ services:
     build: ./digivote-cla
     ports:
       - "8081:443"
+      - "4432:4432"
     volumes:
       - ./digivote-cla/src:/usr/src/server
     hostname: cla.cyber.stmarytx.edu
+    # links:
+    #   - ctf:ctf.cyber.stmarytx.edu
+    networks:
+      default:
+        aliases:
+          - cla.cyber.stmarytx.edu
 
   ctf:
     build: ./digivote-ctf
@@ -15,6 +22,12 @@ services:
     volumes:
       - ./digivote-ctf/src:/usr/src/server
     hostname: ctf.cyber.stmarytx.edu
+    # links:
+    #   - cla:cla.cyber.stmarytx.edu
+    networks:
+      default:
+        aliases:
+          - ctf.cyber.stmarytx.edu
     
   ui:
     build: ./digivote-ui

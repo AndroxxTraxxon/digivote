@@ -1,15 +1,26 @@
+import errors.cla_security as SecurityErrors
+import errors.cla_rules as RuleErrors
 import json
+import os
 import pprint
+import requests
 import ssl
 import sqlite3
 import time
-import errors.cla_rules as RuleErrors
-import errors.cla_security as SecurityErrors
 
 from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 from security import VoterSecurity
 from voter import Voter
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+auth_cert = os.path.join(dir_path, "auth.crt")
+cla_cert = os.path.join(dir_path, "cla.crt")
+cla_key = os.path.join(dir_path, "cla.key")
+print("CLA running with cert {}".format(cla_cert))
+print("CLA Cert found: ", os.path.isfile(cla_cert))
+print("CLA Key found: ", os.path.isfile(cla_key))
+print("Auth Cert found: ", os.path.isfile(auth_cert))
 
 app = Flask(__name__)
 CORS(app, resources={
@@ -73,11 +84,15 @@ def get_voter(voter_id):
 @app.route('/validate', methods=['POST'])
 def validate_voter():
     data = request.get_json()
-    print(data)
-    return jsonify({
-        "status": "accepted",
-        **data
-    })
+    if data is None or data.get("voter") is None:
+        abort(400, "Malformed input: field `voter` required.")
+    voter = voters.get_voter(data["voter"])
+    if (voter is not None and 
+        not voter.has_voted and 
+        data.get("token") is not None):
+        requests.post("https://ctf.cyber.stmarytx.edu/")
+    else:
+        abort(400, "Illegal action")
 
 
 @app.route('/live')
@@ -89,6 +104,6 @@ def readinessCheck():
     return jsonify({"ready": "true"})
 
 if __name__ == "__main__":
-    context=ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     context.load_cert_chain('cla.crt', 'cla.key')
     app.run(host="0.0.0.0", port=443, debug=True, ssl_context=context)

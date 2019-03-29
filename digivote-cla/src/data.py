@@ -3,7 +3,6 @@ import uuid
 import voter
 
 class VoterDAO:
-
     def __init__(self):
         self.voters = dict()
 
@@ -21,4 +20,5 @@ class VoterDAO:
     
     def get_voters_who_voted(self):
         return [voter for voter in self.voters.values() if voter.has_voted]
+
 
