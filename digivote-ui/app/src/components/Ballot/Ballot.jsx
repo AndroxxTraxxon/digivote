@@ -66,10 +66,13 @@ class Ballot extends React.Component{
     const { form, voter_id} = this.state;
     axios.post(baseUrl + resources.vote, {
       form,
-      voter_id
+      voter: voter_id
     }).then(result => {
       if(result.status === 200){
         alert("Vote accepted");
+        localStorage.removeItem("digivote.voter_id")
+      }else{
+        alert(result.data);
       }
     })
   }

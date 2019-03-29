@@ -16,7 +16,10 @@ class Voter:
         self.city = kwargs['city']
         self.state = kwargs['state']
         self.zip = kwargs['zip']
-        self.birthdate = datetime.date(*[int(num) for num in kwargs['birthdate'].split("-")])
+        if isinstance(kwargs['birthdate'], str):
+            self.birthdate = datetime.date(*[int(num) for num in kwargs['birthdate'].split("-")])
+        else:
+            self.birthdate = kwargs['birthdate']
         self.has_voted = False
         if 'has_voted' in kwargs:
             self.has_voted=kwargs['has_voted']

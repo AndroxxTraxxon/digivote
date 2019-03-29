@@ -17,7 +17,16 @@ class Registration extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      form: {}
+      form: {
+        firstName: "John",
+        lastName: "Smith",
+        ssn: "123-45-6789",
+        streetAddress: "1234 Park Place Ave.",
+        city: "Boston",
+        state: "Hawaii",
+        zip: "12345",
+        birthdate: "1994-02-22"
+      }
     }
 
     this.handleFormValueChange = this.handleFormValueChange.bind(this);

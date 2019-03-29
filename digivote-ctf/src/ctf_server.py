@@ -82,19 +82,23 @@ def tally_vote(vote:dict):
     total_votes += 1
 
     for key, value in vote.items():
-        votes[key][value] += 1
+        if votes.get(key) is None:
+            votes[key] = dict()
+        if votes.get(key).get(value) is None:
+            votes[key][value] = 0
+        votes[key][value] += 1 
 
 
-@app.route
+@app.route("/confirm", methods=["POST"])
 def confirm_vote():
     data = request.get_json()
     if data.get("voter") is None or data.get("token") is None:
-        abort(400)
+        abort(400, "Malformed Request: Missing information")
     index = str(data.get("voter") + data.get("token"))
     vote = pending_votes.get(index)
     if vote is None:
-        abort(400)
-    tally_vote(vote)
+        abort(400, "Vote not found.")
+    tally_vote(vote.get("form"))
     return jsonify({
         "status": "accepted",
         "voter": data.get("voter") 
@@ -104,10 +108,10 @@ def validate_vote(vote:dict):
     data = request.get_json()
     token = uuid.uuid4()
     if vote.get("voter") is None:
-        abort(400)
+        abort(400, str(data))
     pending_votes[vote.get("voter") + str(token)] = vote
     response = requests.post(
-        "https://cla.cyber.stmarytx.edu:4432/validate",
+        "https://cla.cyber.stmarytx.edu/validate",
         verify="auth.crt",
         json={
             "voter": data.get("voter"),
@@ -115,23 +119,22 @@ def validate_vote(vote:dict):
         })
     if response.status_code == 200:
         return True
-    return False
+    return abort(400, response.content)
 
 @app.route('/vote', methods=['POST'])
 def cast_vote():
     data = request.get_json()
     try:
         confirmation = validate_vote(data)
-        
     except Exception as ex:
         abort(400, ex)
-    if confirmation:
+    if confirmation == True:
         return jsonify({
             "status": "accepted",
             "voter": data.get("voter")
         })
     else:
-        abort(400, "vote rejected")
+        return confirmation
 
 @app.route('/results', methods=["GET"])
 def get_results():

@@ -25,18 +25,18 @@ print("Auth Cert found: ", os.path.isfile(auth_cert))
 app = Flask(__name__)
 CORS(app, resources={
     r"/": {"origins": "*"},
-    r"/voters*": {"origins": "http://digivote.cyber.stmarytx.edu"},
-    r"/validate*": {"origins": "https://ctf.cyber.stmarytx.edu"},
+    r"/voters": {"origins": "http://digivote.cyber.stmarytx.edu"},
+    r"/validate": {"origins": "https://ctf.cyber.stmarytx.edu"},
     r"/l*": {"origins": "*"}
     })
-global counter
-counter = 0
 voters = VoterSecurity()
 
 def get_hit_count():
-    global counter
-    counter += 1
-    return counter
+    try:
+        app.counter += 1
+    except:
+        app.counter = 1
+    return app.counter
 
 @app.route('/')
 def hello():
@@ -81,7 +81,7 @@ def add_voter():
 def get_voter(voter_id):
     return jsonify(voters.get_voter(voter_id))
 
-@app.route('/validate', methods=['POST'])
+@app.route('/validate', methods=['POST']) 
 def validate_voter():
     data = request.get_json()
     if data is None or data.get("voter") is None:
@@ -90,9 +90,16 @@ def validate_voter():
     if (voter is not None and 
         not voter.has_voted and 
         data.get("token") is not None):
-        requests.post("https://ctf.cyber.stmarytx.edu/")
+        response = requests.post(
+            "https://ctf.cyber.stmarytx.edu/confirm",
+            verify='auth.crt',
+            json=data)
+        if response.status_code == 200:
+            if response.content is not None:
+                return response.content
+            return abort(500, "Empty response from `confirm`")
     else:
-        abort(400, "Illegal action")
+        abort(400, str([voter, data, voters.get_all_voters()]))
 
 
 @app.route('/live')
