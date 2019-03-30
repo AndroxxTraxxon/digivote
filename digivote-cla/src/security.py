@@ -10,5 +10,8 @@ class VoterSecurity:
     def add_voter(self, voter):
         return self.voters.add_voter(voter)
 
+    def update_voter(self, voter_id, field_name, value):
+        return self.voters.update_voter(voter_id, field_name, value)
+
     def get_voter(self, voter_id):
         return self.voters.get_voter(voter_id)

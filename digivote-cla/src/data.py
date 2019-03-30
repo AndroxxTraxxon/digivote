@@ -15,6 +15,9 @@ class VoterDAO:
         self.voters[str(_voter.id)] = _voter.__dict__
         return _voter
 
+    def update_voter(self, voter_id, field_name, field_value):
+        self.voters[str(voter_id)][field_name] = field_value
+
     def get_all_voters(self):
         return self.voters
     

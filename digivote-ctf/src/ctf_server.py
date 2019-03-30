@@ -1,6 +1,7 @@
 import requests
 import flask
 from flask_cors import CORS
+import json
 import os
 import pprint
 import ssl
@@ -99,9 +100,11 @@ def confirm_vote():
     if vote is None:
         abort(400, "Vote not found.")
     tally_vote(vote.get("form"))
+    del pending_votes[index]
     return jsonify({
         "status": "accepted",
-        "voter": data.get("voter") 
+        "voter": data.get("voter"),
+        "ctf": "confirmed" 
     })
 
 def validate_vote(vote:dict):
@@ -118,8 +121,8 @@ def validate_vote(vote:dict):
             "token": str(token)
         })
     if response.status_code == 200:
-        return True
-    return abort(400, response.content)
+        return json.loads(response.content)
+    abort(400, "Vote Rejected")
 
 @app.route('/vote', methods=['POST'])
 def cast_vote():
@@ -128,13 +131,10 @@ def cast_vote():
         confirmation = validate_vote(data)
     except Exception as ex:
         abort(400, ex)
-    if confirmation == True:
-        return jsonify({
-            "status": "accepted",
-            "voter": data.get("voter")
-        })
+    if confirmation is not None:
+        return jsonify(confirmation)
     else:
-        return confirmation
+        return abort(500, "Internal Server Error")
 
 @app.route('/results', methods=["GET"])
 def get_results():

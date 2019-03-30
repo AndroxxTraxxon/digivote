@@ -10,6 +10,9 @@ class VoterRules:
     def get_voter(self, voter_id):
         return self.voters.get_voter(voter_id)
 
+    def update_voter(self, voter_id, field_name, field_value):
+        return self.voters.update_voter(voter_id, field_name, field_value)
+
     def add_voter(self, voter):
         print("VoterRules.add_voter: ", voter)
         foundVoter = self.voters.get_voter(voter.id)

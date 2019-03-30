@@ -84,22 +84,25 @@ def get_voter(voter_id):
 @app.route('/validate', methods=['POST']) 
 def validate_voter():
     data = request.get_json()
-    if data is None or data.get("voter") is None:
-        abort(400, "Malformed input: field `voter` required.")
+    if data is None or data.get("voter") is None or data.get("token") is None:
+        abort(400, "Malformed input: fields `voter` and `token` required.")
     voter = voters.get_voter(data["voter"])
-    if (voter is not None and 
-        not voter.has_voted and 
-        data.get("token") is not None):
+    if voter is None:
+        abort(404, "Voter not found.")
+    if (not voter.has_voted):
         response = requests.post(
             "https://ctf.cyber.stmarytx.edu/confirm",
             verify='auth.crt',
             json=data)
         if response.status_code == 200:
             if response.content is not None:
-                return response.content
+                voters.update_voter(voter.id, "has_voted", True)
+                output = json.loads(response.content)
+                output["cla"] = "validated"
+                return jsonify(output)
             return abort(500, "Empty response from `confirm`")
     else:
-        abort(400, str([voter, data, voters.get_all_voters()]))
+        abort(400, "Voter has already voted.")
 
 
 @app.route('/live')
