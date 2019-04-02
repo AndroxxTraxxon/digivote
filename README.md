@@ -23,10 +23,27 @@ This project implements the secure election protocol described in \[SCHN96\](Vot
 The design should use two central facilities: Central Tabulating Facility (CTF) and Central 
 Legitimization Agency (CLA). CLA's main function is to certify the voters. Each voter will send a message to the CLA asking for a validation number, and CLA will return a random validation number. The CLA retains a list of validation numbers as well as a list of validation numbers' recipients to prevent a voter from voting twice. Then, the CLA completes its task by sending the list of validation number to the CTF. CTF's main function is to count votes. CTF checks the validation number against the list received from the CLA. If the validation number is there, the CTF crosses it off (to prevent someone from voting twice). The CTF adds the identification number to the list of people who voted for a particular candidate and adds one to the tally. After all the votes have been received, the CTF publishes the outcome.
 
+## Prerequisites
+
+- [docker](https://www.docker.com/) (built using Docker 18.09.3)
+
+And that's it! The docker images will take care of any dependencies within the containers at runtime. However, For local development, it's still useful to know my baseline libraries
+
+- [Python 3.7.2](https://www.python.org/downloads/release/python-372/) and libraries:
+  - [flask](https://pypi.org/project/Flask/)
+  - [flask-cors](https://pypi.org/project/Flask-Cors/)
+  - [requests](https://pypi.org/project/requests/)
+- [Node.js 10.15.1](https://nodejs.org/en/download/)
+  - [react-create-app](https://www.npmjs.com/package/create-react-app)
+  - [axios](https://www.npmjs.com/package/axios)
+  - ... and some other stuff. look in the [`package-lock.json`](https://github.com/AndroxxTraxxon/digivote/blob/master/digivote-ui/app/package.json)
+
 ## Setup
 
 If you've followed all of the below instructions, you should be able to just start the whole thing with 
 ```
+git clone https://github.com/AndroxxTraxxon/digivote.git
+cd digivote
 docker-compose up --build
 ``` 
 from within the `digivote` root directory. <br/>
