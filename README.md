@@ -36,7 +36,7 @@ And that's it! The docker images will take care of any dependencies within the c
 - [Node.js 10.15.1](https://nodejs.org/en/download/)
   - [react-create-app](https://www.npmjs.com/package/create-react-app)
   - [axios](https://www.npmjs.com/package/axios)
-  - ... and some other stuff. look in the [`package-lock.json`](https://github.com/AndroxxTraxxon/digivote/blob/master/digivote-ui/app/package.json)
+  - ... and some other stuff. look in the [`package.json`](https://github.com/AndroxxTraxxon/digivote/blob/master/digivote-ui/app/package.json)
 
 ## Setup
 
