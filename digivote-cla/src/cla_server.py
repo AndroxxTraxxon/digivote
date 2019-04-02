@@ -43,15 +43,15 @@ def hello():
     count = get_hit_count()
     return 'CLA Server: Hello World! I have been seen {} times.\n'.format(count)
 
-@app.route('/voters')
+@app.route('/voters', methods=['GET'])
 def get_voters():
-    voter_list = [{
+    voter_list = voters.get_all_voters()
+    if(request.args.get('only_participants') == "true"):
+        voter_list = [x for x in voter_list if x.has_voted ]
+    return jsonify([{
         "firstName": voter.firstName,
         "lastName": voter.lastName,
-        "birthDate": voter.birthDate} for voter in voters.get_all_voters()]
-    if(request.args.get('only_participants') == "true"):
-        voter_list = filter(lambda x: x.has_voted, voter_list)
-    return jsonify(voter_list)
+        "birthdate": voter.birthdate} for voter in voter_list])
 
 
 

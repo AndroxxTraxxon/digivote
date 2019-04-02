@@ -19,9 +19,9 @@ class VoterDAO:
         self.voters[str(voter_id)][field_name] = field_value
 
     def get_all_voters(self):
-        return self.voters
+        return [Voter.make_voter(voter) for voter in self.voters.values()]
     
     def get_voters_who_voted(self):
-        return [Voter.make_voter(voter) for voter in self.voters.values() if Voter.make_voter(voter)]
+        return [Voter.make_voter(voter) for voter in self.voters.values() if Voter.make_voter(voter).has_voted is True]
 
 
