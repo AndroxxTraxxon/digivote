@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import cfg from '../../constants';
-import StateViewer from '../StateViewer';
-
+import { withRouter } from 'react-router-dom';
 class Ballot extends React.Component{
 
   static propTypes = {
@@ -27,6 +26,10 @@ class Ballot extends React.Component{
   componentWillMount(){
     this.fetchBallot();
     const voter_id  = JSON.parse(localStorage.getItem("digivote.voter_id"));
+    if(voter_id == null){
+      const { history } = this.props;
+      history.push("/registration");
+    }
     this.setState({
       voter_id
     });
@@ -68,9 +71,11 @@ class Ballot extends React.Component{
       form,
       voter: voter_id
     }).then(result => {
+      const { history } = this.props;
       if(result.status === 200){
         alert("Vote accepted");
-        localStorage.removeItem("digivote.voter_id")
+        localStorage.removeItem("digivote.voter_id");
+        history.push("/");
       }else{
         alert(result.data);
       }
@@ -78,16 +83,15 @@ class Ballot extends React.Component{
   }
 
   render(){
-    const voter_id  = JSON.parse(localStorage.getItem("digivote.voter_id"));
     return (
       <div className="Ballot">
-        Ballot
-        <br/>
+        <div className="Title">Please make select your votes.</div>
+        {/* <br/>
         {voter_id}
-        <br/>
+        <br/> */}
         <form onSubmit={this.handleSubmit}>        
           {this.state.ballot.map((item, index) => 
-            <div key={index}>
+            <div key={index} className="basic-input">
             <label htmlFor={item.title}>{item.title}</label>
               <select name={item.title} 
               value = {this.state.form[item.title]} 
@@ -99,12 +103,13 @@ class Ballot extends React.Component{
               </select>
             </div>
           )}
+          <br/>
           <input type="submit" value="Submit Vote"/>
         </form>
-        <StateViewer state={this.state.form}/>
+        {/* <StateViewer state={this.state.form}/> */}
       </div>
     );
   }
 }
 
-export default Ballot;
+export default withRouter(Ballot);

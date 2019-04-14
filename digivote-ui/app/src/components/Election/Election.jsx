@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 import Results from './Results';
-import Participants from './Participants';
+import Demographics from './Demographics';
+import axios from 'axios';
 
 class Election extends React.Component{
 
@@ -16,6 +17,20 @@ class Election extends React.Component{
     this.state = {
       rootPath: "/election/"
     }
+
+    this.closeElection = this.closeElection.bind(this);
+  }
+
+  componentWillMount(){
+
+  }
+
+  fetchElectionStatus(){
+    axios.get("https://")
+  }
+
+  closeElection(){
+
   }
 
   render(){
@@ -30,8 +45,8 @@ class Election extends React.Component{
           { children }
         </div>
         <Switch>
-          <Route path={ rootPath + "participants" } 
-            component={ Participants }
+          <Route path={ rootPath + "demographics" } 
+            component={ Demographics }
           />
           <Route path={ rootPath + "results" }
             component={ Results }
@@ -39,6 +54,7 @@ class Election extends React.Component{
           <Route path={ rootPath } render={ () => (
               <div>
                 Election Home
+                <button onClick={this.closeElection}>Close Election</button>
               </div>
             )}
           />

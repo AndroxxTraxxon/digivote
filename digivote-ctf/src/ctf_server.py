@@ -25,10 +25,15 @@ CORS(app, resources={
     r"/ballot.*": {"origins": "*"},
     r"/vote.*": {"origins": "*"}#"http://digivote.cyber.stmarytx.edu"}
 })
+
 global counter
 counter = 0
+global pending_votes
 pending_votes = dict()
+global votes
 votes = dict()
+global polls_open
+polls_open = True
 
 def get_hit_count():
     global counter
@@ -80,6 +85,7 @@ total_votes = 0
 
 def tally_vote(vote:dict):
     global total_votes
+    global votes
     total_votes += 1
 
     for key, value in vote.items():
@@ -126,24 +132,50 @@ def validate_vote(vote:dict):
 
 @app.route('/vote', methods=['POST'])
 def cast_vote():
-    data = request.get_json()
-    try:
-        confirmation = validate_vote(data)
-    except Exception as ex:
-        abort(400, ex)
-    if confirmation is not None:
-        return jsonify(confirmation)
+    global polls_open
+    if polls_open is True:
+        data = request.get_json()
+        try:
+            confirmation = validate_vote(data)
+        except Exception as ex:
+            abort(400, ex)
+        if confirmation is not None:
+            return jsonify(confirmation)
+        else:
+            return abort(500, "Internal Server Error")
     else:
-        return abort(500, "Internal Server Error")
+        abort(403, "Voting has been closed.")
 
 @app.route('/results', methods=["GET"])
 def get_results():
-    return jsonify(votes)
+    global polls_open
+    if polls_open is True:
+        abort(403, "Results are not available while polls are open.")
+    else:
+        return jsonify(votes)
 
-@app.route('/hello')
+@app.route('/polls/<string:method>', methods=["GET","POST"])
+def manage_poll(method):
+    global polls_open
+    global votes
+    if "close" == method and polls_open is True:
+        polls_open = False
+        return flask.Response("Polls have been closed.")
+    elif "open" == method and polls_open is False:
+        votes = dict()
+        polls_open = True
+        return flask.Response("Polls have been cleared and opened.")
+    elif "status" == method:
+        return jsonify({
+            "status": "open" if polls_open else "closed"
+        })
+    else:
+        abort(403, "Method Not Permitted.")
+
+@app.route('/')
 def hello():
-    count = get_hit_count()
-    return 'CTF Server:: Hello World! I have been seen {} times.\n'.format(count)
+    global polls_open
+    return 'CTF Server :: The polls {}.'.format("are still open" if polls_open else "have been closed")
 
 
 context=ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)

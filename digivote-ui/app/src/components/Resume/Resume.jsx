@@ -5,9 +5,9 @@ import BasicInput from '../BasicInput';
 import cfg from '../../constants';
 import axios from 'axios';
 import { normalizeSSN } from '../../util/normalizers';
-import { withRouter, Link } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
-class Registration extends React.Component{
+class Resume extends React.Component{
 
   static propTypes = {
     children: PropTypes.any,
@@ -21,11 +21,6 @@ class Registration extends React.Component{
         firstName: "John",
         lastName: "Smith",
         ssn: "123-45-6789",
-        gender: "male",
-        streetAddress: "1234 Park Place Ave.",
-        city: "Boston",
-        state: "Hawaii",
-        zip: "12345",
         birthdate: "1994-02-22"
       }
     }
@@ -54,7 +49,7 @@ class Registration extends React.Component{
     event.preventDefault();
     const {baseUrl, resources} = cfg.api.cla;
     const {form} = this.state;
-    axios.post(baseUrl + resources.voters, form, {
+    axios.post(baseUrl + resources.voters + "?fetch_user=true", form, {
       headers: {
         "Access-Control-Allow-Origin" : "http://digivote.cyber.stmarytx.edu"
       }
@@ -79,11 +74,8 @@ class Registration extends React.Component{
           time: (Date.now()),
         },
       });
+      alert("Unable to retrieve voter account.");
       console.log(error);
-
-      alert("Unable to register for voting.");
-      console.log({...error});
-
     });
 
   }
@@ -92,10 +84,8 @@ class Registration extends React.Component{
     const {form} = this.state;
     return (
       <div>
-        <h2>
-          Registration
-        </h2>
-        <hr/>
+        Please confirm your information to continue to the ballot.
+
         <div className="registration-form-wrapper">
           <form onSubmit={this.handleSubmit}>
           <BasicInput
@@ -125,57 +115,7 @@ class Registration extends React.Component{
               value: form.ssn
             }}
             normalize={normalizeSSN}
-          />
-          <div className ="basic-input">
-            <div className="basic-input-label">
-              <label htmlFor="gender">Gender</label>
-            </div>
-            <select name="gender" onChange={this.handleFormValueChange} value={this.state.gender}>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <BasicInput
-            label="Street Address"
-            input = {{
-              name: "streetAddress",
-              onChange: this.handleFormValueChange,
-              placeholder: "1234 Park Place Ave.",
-              value: form.streetAddress
-            }}
-          />
-          
-          <BasicInput
-            label="City"
-            input = {{
-              name: "city",
-              onChange: this.handleFormValueChange,
-              placeholder: "Boston",
-              value: form.city
-            }}
-          />
-          
-          <BasicInput
-            label="State"
-            input = {{
-              name: "state",
-              onChange: this.handleFormValueChange,
-              placeholder: "Hawaii",
-              value: form.state
-            }}
-          />
-          
-          <BasicInput
-            label="Zip Code"
-            input = {{
-              name: "zip",
-              onChange: this.handleFormValueChange,
-              placeholder: "12345",
-              value: form.zip
-            }}
-          />
-          
+          />          
           <BasicInput
             label="Birth Date"
             input = {{
@@ -187,25 +127,18 @@ class Registration extends React.Component{
           />
           <br/>
           <br/>
-          <button onClick={this.handleSubmit} className="submit-button">
-            <b>Register</b>
+          <button onClick={this.handleSubmit}>
+            Continue to Ballot
           </button>
           </form>
           {/* Form Values: 
           <StateViewer state={this.state.form}/>
           Response: 
           <StateViewer state={this.state.response}/> */}
-
-        <hr/>
-        <h2>Already Registered?</h2> 
-        <br/>
-        <Link to="/resume">
-          Check in to vote.
-        </Link>
         </div>
       </div>
     );
   }
 }
 
-export default withRouter(Registration);
+export default withRouter(Resume);
