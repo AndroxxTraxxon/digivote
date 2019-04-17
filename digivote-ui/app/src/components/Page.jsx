@@ -17,7 +17,7 @@ class Page extends React.Component{
       <div className="page">
         <header className="page-header">
           <Link to="/">
-            <img className="header-logo"src="logo.png" alt="Digivote Logo"/>
+            <img className="header-logo"src="/logo.png" alt="Digivote Logo"/>
           </Link>
           <div className="caption">  
             Digital Voting Services

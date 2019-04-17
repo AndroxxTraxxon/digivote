@@ -60,7 +60,12 @@ def get_voters():
     return jsonify([{
         "firstName": voter.firstName,
         "lastName": voter.lastName,
-        "birthdate": voter.birthdate} for voter in voter_list])
+        "birthdate": voter.birthdate.year,
+        "city": voter.city,
+        "state": voter.state,
+        "zip": voter.zip,
+        "gender": voter.gender,
+        } for voter in voter_list])
 
 @app.route('/voters', methods=['POST'])
 def add_voter():

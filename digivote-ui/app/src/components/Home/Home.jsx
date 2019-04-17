@@ -18,7 +18,7 @@ class Home extends React.Component{
           <h2>
           Are you ready to Vote? 
         </h2>
-        <Link to="/registration">
+        <Link className="link-button" to="/registration">
           Register to Vote
         </Link>
         </div>
@@ -26,7 +26,7 @@ class Home extends React.Component{
           <h3>
             Already Registered?
           </h3>
-          <Link to="/resume">
+          <Link className="link-button" to="/resume">
             Continue voting
           </Link>
         </div>
@@ -35,7 +35,7 @@ class Home extends React.Component{
           <h2>
             We also have the latest results!
           </h2>
-          <Link to="/election">
+          <Link className="link-button" to="/election/results">
             Election Results
           </Link>
         </div>
@@ -43,7 +43,7 @@ class Home extends React.Component{
           <h2>
             Click here to access the Election Demographics!
           </h2>
-          <Link to="/demographics">
+          <Link className="link-button" to="/demographics">
             Election Demographics
           </Link>
         </div>

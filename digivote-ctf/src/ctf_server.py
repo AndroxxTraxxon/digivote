@@ -1,5 +1,6 @@
 import requests
 import flask
+from flask_httpauth import HTTPBasicAuth
 from flask_cors import CORS
 import json
 import os
@@ -19,17 +20,27 @@ print("Auth Cert found: ", os.path.isfile(auth_cert))
 from flask import Flask, request, abort, jsonify
 
 app = flask.Flask(__name__)
+auth = HTTPBasicAuth()
 CORS(app, resources={ 
     r"/hello.*": {"origins": "*"},
     r"/results.*": {"origins": "*"},
     r"/ballot.*": {"origins": "*"},
-    r"/vote.*": {"origins": "*"}#"http://digivote.cyber.stmarytx.edu"}
+    r"/vote.*": {"origins": "*"},
+    r"/polls.*": {"origins": "*"}
 })
+@auth.get_password
+def validate_user(username):
+    if username == "cyber":
+        return "secure"
+    return None
+
 
 global counter
 counter = 0
 global pending_votes
 pending_votes = dict()
+global voter_votes
+voter_votes = dict()
 global votes
 votes = dict()
 global polls_open
@@ -40,10 +51,8 @@ def get_hit_count():
     counter += 1
     return counter
 
-
-@app.route('/ballot')
-def getBallot():
-    return flask.jsonify([
+global ballot_items
+ballot_items = [
         {
             "title":"Favorite Fruit",
             "options": [
@@ -78,7 +87,12 @@ def getBallot():
                 "NVidia"
             ]
         }
-    ])
+    ]
+
+@app.route('/ballot')
+def getBallot():
+    global ballot_items
+    return flask.jsonify({"items": ballot_items})
 
 global total_votes
 total_votes = 0
@@ -95,6 +109,16 @@ def tally_vote(vote:dict):
             votes[key][value] = 0
         votes[key][value] += 1 
 
+def remove_voter_votes(voter_id):
+    global voter_votes
+    global pending_votes
+    votes = voter_votes.get(voter_id)
+    if votes is not None:
+        for vote_id in votes:
+            index = str(voter_id) + str(vote_id)
+            del pending_votes[index]
+        del voter_votes[voter_id]
+
 
 @app.route("/confirm", methods=["POST"])
 def confirm_vote():
@@ -105,20 +129,40 @@ def confirm_vote():
     vote = pending_votes.get(index)
     if vote is None:
         abort(400, "Vote not found.")
+    
     tally_vote(vote.get("form"))
-    del pending_votes[index]
+    remove_voter_votes(str(data.get("voter")))
     return jsonify({
         "status": "accepted",
         "voter": data.get("voter"),
         "ctf": "confirmed" 
     })
 
+def is_valid_ballot_selection(key, value):
+    global ballot_items
+    for item in ballot_items:
+        if item["title"] == key:
+            if value in item["options"]:
+                return True
+
+    return False
+
 def validate_vote(vote:dict):
     data = request.get_json()
     token = uuid.uuid4()
-    if vote.get("voter") is None:
+    # make sure there's a voter in the vote
+    if vote.get("voter") is None or vote.get("form") is None:
         abort(400, str(data))
+    # make sure the values being passed are all valid
+    for key, value in vote["form"].items():
+        if not is_valid_ballot_selection(key, value):
+            abort(400, "Invalid vote selection ... [{}]::{}".format(key, value))
+    # store the vote in the temporaty table
     pending_votes[vote.get("voter") + str(token)] = vote
+    if voter_votes.get(vote["voter"]) is None:
+        voter_votes[vote["voter"]] = []
+    # note that this voter has another vote.
+    voter_votes[vote["voter"]].append(token) 
     response = requests.post(
         "https://cla.cyber.stmarytx.edu/validate",
         verify="auth.crt",
@@ -128,6 +172,8 @@ def validate_vote(vote:dict):
         })
     if response.status_code == 200:
         return json.loads(response.content)
+    del pending_votes[vote.get("voter") + str(token)]
+    del voter_votes[vote["voter"]]
     abort(400, "Vote Rejected")
 
 @app.route('/vote', methods=['POST'])
@@ -154,23 +200,30 @@ def get_results():
     else:
         return jsonify(votes)
 
-@app.route('/polls/<string:method>', methods=["GET","POST"])
+@app.route('/polls/status', methods=["GET"])
+def get_status():
+    return jsonify({
+        "status": "open" if polls_open else "closed"
+    })
+
+ 
+@app.route('/polls/<string:method>', methods=["POST"])
+@auth.login_required
 def manage_poll(method):
     global polls_open
     global votes
-    if "close" == method and polls_open is True:
-        polls_open = False
-        return flask.Response("Polls have been closed.")
-    elif "open" == method and polls_open is False:
-        votes = dict()
-        polls_open = True
-        return flask.Response("Polls have been cleared and opened.")
-    elif "status" == method:
-        return jsonify({
-            "status": "open" if polls_open else "closed"
-        })
+    if method in ("close", "open"):
+        if "close" == method and polls_open is True:
+            polls_open = False
+            return flask.redirect("http://digivote.cyber.stmarytx.edu/election/results") 
+        elif "open" == method and polls_open is False:
+            votes = dict()
+            polls_open = True
+            return flask.redirect("http://digivote.cyber.stmarytx.edu/") 
     else:
-        abort(403, "Method Not Permitted.")
+        abort(400, "Invalid action")
+
+@app.route
 
 @app.route('/')
 def hello():

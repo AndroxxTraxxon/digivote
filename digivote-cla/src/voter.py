@@ -3,7 +3,7 @@ import uuid
 
 class Voter:
     globalVoterUUID = uuid.UUID('{79c5dfd0-e4f7-5a77-8486-c7030122d24c}')
-    requiredFields = ['firstName', 'lastName', 'ssn', 'birthdate', 'state', 'city', 'zip']
+    requiredFields = ['firstName', 'lastName', 'ssn', 'birthdate', 'state', 'city', 'zip', 'gender']
     def __init__(
         self, **kwargs):
         for item in self.requiredFields:
@@ -16,6 +16,7 @@ class Voter:
         self.city = kwargs['city']
         self.state = kwargs['state']
         self.zip = kwargs['zip']
+        self.gender = kwargs['gender']
         if isinstance(kwargs['birthdate'], str):
             self.birthdate = datetime.date(*[int(num) for num in kwargs['birthdate'].split("-")])
         else:
@@ -24,7 +25,7 @@ class Voter:
         if 'has_voted' in kwargs:
             self.has_voted=kwargs['has_voted']
         self.id = uuid.uuid5(
-            uuid.NAMESPACE_DNS,
+            self.__class__.globalVoterUUID,
             str(hash(self))
             )
 
@@ -37,6 +38,7 @@ class Voter:
             "firstName": self.firstName.lower(),
             "lastName": self.lastName.lower(),
             "ssn": self.ssn,
+            "gender": self.gender,
             "birthdate": self.birthdate.isoformat(),
             "state": self.state.lower(),
             "city": self.city.lower()

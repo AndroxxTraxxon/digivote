@@ -56,7 +56,7 @@ class Ballot extends React.Component{
     axios.get(baseUrl + resources.ballot)
     .then((result) => {
       this.setState({
-        ballot: result.data
+        ballot: result.data.items
       });
     }).catch((error) => {
 
